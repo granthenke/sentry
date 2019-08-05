@@ -28,6 +28,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.metastore.api.NotificationEvent;
 import org.apache.hadoop.hive.metastore.messaging.EventMessage.EventType;
 import org.apache.sentry.binding.metastore.messaging.json.SentryJSONAddPartitionMessage;
+import org.apache.sentry.binding.metastore.messaging.json.SentryJSONAlterDatabaseMessage;
 import org.apache.sentry.binding.metastore.messaging.json.SentryJSONAlterPartitionMessage;
 import org.apache.sentry.binding.metastore.messaging.json.SentryJSONAlterTableMessage;
 import org.apache.sentry.binding.metastore.messaging.json.SentryJSONCreateDatabaseMessage;
@@ -62,7 +63,6 @@ import java.util.List;
 
 import static org.apache.sentry.binding.hive.conf.HiveAuthzConf.AuthzConfVars.AUTHZ_SYNC_CREATE_WITH_POLICY_STORE;
 import static org.apache.sentry.binding.hive.conf.HiveAuthzConf.AuthzConfVars.AUTHZ_SYNC_DROP_WITH_POLICY_STORE;
-
 
 
 /**
@@ -212,6 +212,8 @@ final class NotificationProcessor {
       switch (eventType) {
         case CREATE_DATABASE:
           return processCreateDatabase(event);
+        case ALTER_DATABASE:
+          return processAlterDatabase(event);
         case DROP_DATABASE:
           return processDropDatabase(event);
         case CREATE_TABLE:
@@ -266,6 +268,71 @@ final class NotificationProcessor {
     }
 
     return false;
+  }
+
+  /**
+   * Processes "alter database" notification event, and applies its corresponding
+   * snapshot change as well as delta path update into Sentry DB.
+   *
+   * @param event notification event to be processed.
+   * @throws Exception if encounters errors while persisting the path change
+   */
+  private boolean processAlterDatabase(NotificationEvent event) throws Exception {
+
+    SentryJSONAlterDatabaseMessage alterDatabaseMessage =
+        deserializer.getAlterDatabaseMessage(event.getMessage());
+    String oldDbName = alterDatabaseMessage.getDbObjBefore().getName();
+    String newDbName = alterDatabaseMessage.getDbObjAfter().getName();
+
+    if ((oldDbName == null) ||
+        (newDbName == null)) {
+      LOGGER.warn(String.format("Alter table notification ignored since event "
+              + "has incomplete information. oldDbName = %s, newDbName = %s",
+          StringUtils.defaultIfBlank(oldDbName, "null"),
+          StringUtils.defaultIfBlank(newDbName, "null")));
+      return false;
+    }
+
+    if (!newDbName.equalsIgnoreCase(oldDbName)) {
+      // Name has changed
+      try {
+        renamePrivileges(oldDbName, newDbName);
+      } catch (SentryNoSuchObjectException e) {
+        LOGGER.debug("Rename Sentry privilege ignored as there are no privileges on the database:"
+            + " {}", oldDbName);
+      } catch (Exception e) {
+        LOGGER.info("Could not process Alter database event. Event: {}", event.toString(), e);
+        return false;
+      }
+    }
+
+    if (!hdfsSyncEnabled) {
+      return false;
+    }
+
+    String oldLocation = alterDatabaseMessage.getOldLocation();
+    String newLocation = alterDatabaseMessage.getNewLocation();
+    if (oldLocation == null || newLocation == null) {
+      LOGGER.warn(String.format("HMS path update ignored since event has incomplete "
+              + "path information. oldLocation = %s, newLocation = %s",
+          StringUtils.defaultIfBlank(oldLocation, "null"),
+          StringUtils.defaultIfBlank(newLocation, "null")));
+      return false;
+    }
+
+    if ((oldDbName.equals(newDbName)) &&
+        (oldLocation.equals(newLocation))) {
+      LOGGER.debug(String.format("Alter table notification ignored as neither name nor "
+              + "location has changed: oldAuthzObj = %s, oldLocation = %s, newAuthzObj = %s, "
+              + "newLocation = %s", oldDbName, oldLocation,
+          newDbName, newLocation));
+      return false;
+    }
+
+    String oldAuthzObj = oldDbName;
+    String newAuthzObj = newDbName;
+    renameAuthzPath(oldAuthzObj, newAuthzObj, oldLocation, newLocation, event);
+    return true;
   }
 
   /**
@@ -786,6 +853,18 @@ final class NotificationProcessor {
     TSentryAuthorizable newAuthorizable = new TSentryAuthorizable(authServerName);
     newAuthorizable.setDb(newDbName);
     newAuthorizable.setTable(newTableName);
+    Update update =
+        getPermUpdatableOnRename(oldAuthorizable, newAuthorizable);
+    sentryStore.renamePrivilege(oldAuthorizable, newAuthorizable, update);
+  }
+
+  // TODO: Does this work?
+  private void renamePrivileges(String oldDbName, String newDbName) throws
+      Exception {
+    TSentryAuthorizable oldAuthorizable = new TSentryAuthorizable(authServerName);
+    oldAuthorizable.setDb(oldDbName);
+    TSentryAuthorizable newAuthorizable = new TSentryAuthorizable(authServerName);
+    newAuthorizable.setDb(newDbName);
     Update update =
         getPermUpdatableOnRename(oldAuthorizable, newAuthorizable);
     sentryStore.renamePrivilege(oldAuthorizable, newAuthorizable, update);

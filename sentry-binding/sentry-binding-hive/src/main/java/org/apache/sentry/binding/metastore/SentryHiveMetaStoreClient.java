@@ -25,6 +25,7 @@ import org.apache.hadoop.hive.metastore.IMetaStoreClient;
 import org.apache.hadoop.hive.metastore.api.InvalidOperationException;
 import org.apache.hadoop.hive.metastore.api.MetaException;
 import org.apache.hadoop.hive.metastore.api.UnknownDBException;
+import org.apache.hadoop.hive.metastore.utils.MetaStoreUtils;
 import org.apache.hadoop.hive.ql.session.SessionState;
 import org.apache.sentry.binding.hive.authz.HiveAuthzBinding;
 import org.apache.sentry.binding.hive.authz.MetastoreAuthzObjectFilter;
@@ -53,31 +54,44 @@ public class SentryHiveMetaStoreClient extends HiveMetaStoreClient implements
 
   @Override
   public List<String> getDatabases(String databasePattern) throws MetaException {
-    return filterDatabases(super.getDatabases(databasePattern));
+    try {
+      return filterDatabases(MetaStoreUtils.getDefaultCatalog(this.conf),
+          super.getDatabases(databasePattern));
+    } catch (TException e) {
+      throw new MetaException(e.getMessage());
+    }
   }
 
   @Override
   public List<String> getAllDatabases() throws MetaException {
-    return filterDatabases(super.getAllDatabases());
+    try {
+
+      return filterDatabases(MetaStoreUtils.getDefaultCatalog(this.conf),
+          super.getAllDatabases());
+    } catch (TException e) {
+      throw new MetaException(e.getMessage());
+    }
   }
 
   @Override
   public List<String> getTables(String dbName, String tablePattern)
       throws MetaException {
-    return filterTables(dbName, super.getTables(dbName, tablePattern));
+    return filterTables(MetaStoreUtils.getDefaultCatalog(this.conf),
+        dbName, super.getTables(dbName, tablePattern));
   }
 
   @Override
   public List<String> getAllTables(String dbName) throws MetaException {
-    return filterTables(dbName, super.getAllTables(dbName));
+    return filterTables(MetaStoreUtils.getDefaultCatalog(this.conf),
+        dbName, super.getAllTables(dbName));
   }
 
   @Override
   public List<String> listTableNamesByFilter(String dbName, String filter,
       short maxTables) throws InvalidOperationException, UnknownDBException,
       TException {
-    return filterTables(dbName,
-        super.listTableNamesByFilter(dbName, filter, maxTables));
+    return filterTables(MetaStoreUtils.getDefaultCatalog(this.conf),
+        dbName, super.listTableNamesByFilter(dbName, filter, maxTables));
   }
 
   /**
@@ -88,11 +102,16 @@ public class SentryHiveMetaStoreClient extends HiveMetaStoreClient implements
    * @return
    * @throws MetaException
    */
-  private List<String> filterDatabases(List<String> dbList)
+  private List<String> filterDatabases(String catName, List<String> dbList)
       throws MetaException {
     try {
       MetastoreAuthzObjectFilter<String> filter = new MetastoreAuthzObjectFilter<>(
         getHiveAuthzBinding(), new ObjectExtractor<String>() {
+        @Override
+        public String getCatalogName(String o) {
+          return catName;
+        }
+
         @Override
         public String getDatabaseName(String o) {
           return o;
@@ -114,15 +133,20 @@ public class SentryHiveMetaStoreClient extends HiveMetaStoreClient implements
    * Invoke Hive table filtering that removes the entries which use has no
    * privileges to access
    *
-   * @param dbList
+   * @param tabList
    * @return
    * @throws MetaException
    */
-  private List<String> filterTables(String dbName, List<String> tabList)
+  private List<String> filterTables(String catName, String dbName, List<String> tabList)
       throws MetaException {
     try {
       MetastoreAuthzObjectFilter<String> filter = new MetastoreAuthzObjectFilter<>(
         getHiveAuthzBinding(), new ObjectExtractor<String>() {
+        @Override
+        public String getCatalogName(String o) {
+          return catName;
+        }
+
         @Override
         public String getDatabaseName(String o) {
           return dbName;

@@ -315,7 +315,8 @@ public class TestNotificationProcessor {
         EventMessage.EventType.ALTER_TABLE.toString(),
         messageFactory.buildAlterTableMessage(
             new Table(tableName, dbName, null, 0, 0, 0, sd, null, null, null, null, null),
-            new Table(newTableName, newDbName, null, 0, 0, 0, sd, null, null, null, null, null))
+            new Table(newTableName, newDbName, null, 0, 0, 0, sd, null, null, null, null, null),
+            false)
             .toString());
     notificationEvent.setDbName(newDbName);
     notificationEvent.setTableName(newTableName);
@@ -363,7 +364,8 @@ public class TestNotificationProcessor {
         EventMessage.EventType.ALTER_TABLE.toString(),
         messageFactory.buildAlterTableMessage(
             new Table(tableName, dbName, null, 0, 0, 0, sd, null, null, null, null, null),
-            new Table(newTableName, newDbName, null, 0, 0, 0, sd, null, null, null, null, null))
+            new Table(newTableName, newDbName, null, 0, 0, 0, sd, null, null, null, null, null),
+            false)
             .toString());
     notificationEvent.setDbName(newDbName);
     notificationEvent.setTableName(newTableName);
@@ -413,7 +415,8 @@ public class TestNotificationProcessor {
         EventMessage.EventType.ALTER_TABLE.toString(),
         messageFactory.buildAlterTableMessage(
             new Table(tableName, dbName, null, 0, 0, 0, sd, null, null, null, null, null),
-            new Table(newTableName, newDbName, null, 0, 0, 0, new_sd, null, null, null, null, null))
+            new Table(newTableName, newDbName, null, 0, 0, 0, new_sd, null, null, null, null, null),
+            false)
             .toString());
     notificationEvent.setDbName(newDbName);
     notificationEvent.setTableName(newTableName);
@@ -493,7 +496,9 @@ public class TestNotificationProcessor {
         messageFactory.buildAlterTableMessage(
             new Table(tableName1, dbName, null, 0, 0, 0, sd, null, null, null, null, null),
             new Table(tableName1, dbName, null, 0, 0, 0, sd, null,
-                null, null, null, null)).toString());
+                null, null, null, null),
+            false)
+            .toString());
     notificationEvent.setDbName(dbName);
     notificationEvent.setTableName(tableName1);
     inputEventId += 1;

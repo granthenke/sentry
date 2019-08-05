@@ -244,7 +244,7 @@ public abstract class AbstractMetastoreTestWithStaticConfiguration extends
     clientUgi.doAs(new PrivilegedExceptionAction<Object>() {
       @Override
       public Void run() throws Exception {
-        Driver driver = new Driver(hiveConf, userName);
+        Driver driver = new Driver(hiveConf, userName, null);
         SessionState.start(new CliSessionState(hiveConf));
         CommandProcessorResponse cpr = driver.run(sqlStmt);
         if (cpr.getResponseCode() != 0) {

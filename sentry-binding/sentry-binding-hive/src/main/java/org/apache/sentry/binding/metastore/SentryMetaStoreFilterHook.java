@@ -24,13 +24,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.metastore.MetaStoreFilterHook;
+import org.apache.hadoop.hive.metastore.api.Catalog;
 import org.apache.hadoop.hive.metastore.api.Database;
-import org.apache.hadoop.hive.metastore.api.Index;
 import org.apache.hadoop.hive.metastore.api.MetaException;
 import org.apache.hadoop.hive.metastore.api.NoSuchObjectException;
 import org.apache.hadoop.hive.metastore.api.Partition;
 import org.apache.hadoop.hive.metastore.api.PartitionSpec;
 import org.apache.hadoop.hive.metastore.api.Table;
+import org.apache.hadoop.hive.metastore.api.TableMeta;
+import org.apache.hadoop.hive.metastore.utils.MetaStoreUtils;
 import org.apache.hadoop.hive.shims.Utils;
 import org.apache.sentry.binding.hive.authz.HiveAuthzBinding;
 import org.apache.sentry.binding.hive.authz.HiveAuthzBinding.HiveHook;
@@ -114,15 +116,28 @@ public class SentryMetaStoreFilterHook implements MetaStoreFilterHook {
   }
 
   @Override
-  public List<String> filterDatabases(List<String> dbList) {
-    return filterDb(dbList);
+  public Catalog filterCatalog(Catalog catalog) throws MetaException {
+    // TODO: Filter the catalogs
+    return null;
   }
+
+  @Override
+  public List<String> filterCatalogs(List<String> catalogs) throws MetaException {
+    // TODO: Filter the catalogs
+    return null;
+  }
+
+  @Override
+  public List<String> filterDatabases(List<String> dbList) {
+    // TODO: This interface only supports the default catalog.
+    return filterDb(MetaStoreUtils.getDefaultCatalog(hiveConf), dbList);
+}
 
   @Override
   public Database filterDatabase(Database dataBase)
       throws NoSuchObjectException {
     String name = dataBase.getName();
-    if (filterDb(Collections.singletonList(name)).isEmpty()) {
+    if (filterDb(dataBase.getCatalogName(), Collections.singletonList(name)).isEmpty()) {
       throw new NoSuchObjectException(String.format("Database %s does not exist", name));
     }
 
@@ -130,16 +145,23 @@ public class SentryMetaStoreFilterHook implements MetaStoreFilterHook {
   }
 
   @Override
-  public List<String> filterTableNames(String dbName, List<String> tableList) {
-    return filterTab(dbName, tableList);
+  public List<String> filterTableNames(String catName, String dbName, List<String> tableList) {
+    return filterTab(catName, dbName, tableList);
+  }
+
+  @Override
+  public List<TableMeta> filterTableMetas(List<TableMeta> list) throws MetaException {
+    // TODO: Filter the TableMeta
+    return null;
   }
 
   @Override
   public Table filterTable(Table table) throws NoSuchObjectException {
+    String catName = table.getCatName();
     String dbName = table.getDbName();
     String tableName = table.getTableName();
 
-    if (filterTab(dbName, Collections.singletonList(tableName)).isEmpty()) {
+    if (filterTab(catName, dbName, Collections.singletonList(tableName)).isEmpty()) {
       throw new NoSuchObjectException(String.format("Table %s.%s does not exist", dbName, tableName));
     }
 
@@ -173,28 +195,9 @@ public class SentryMetaStoreFilterHook implements MetaStoreFilterHook {
 
   // Sentry does not support partition filtering
   @Override
-  public List<String> filterPartitionNames(String dbName, String tblName,
+  public List<String> filterPartitionNames(String catName, String dbName, String tblName,
       List<String> partitionNames) {
     return partitionNames;
-  }
-
-  // Sentry does not support index filtering
-  @Override
-  public Index filterIndex(Index index) throws NoSuchObjectException {
-    return index;
-  }
-
-  // Sentry does not support index filtering
-  @Override
-  public List<String> filterIndexNames(String dbName, String tblName,
-      List<String> indexList) {
-    return indexList;
-  }
-
-  // Sentry does not support index filtering
-  @Override
-  public List<Index> filterIndexes(List<Index> indexeList) {
-    return indexeList;
   }
 
   /**
@@ -204,7 +207,7 @@ public class SentryMetaStoreFilterHook implements MetaStoreFilterHook {
    * @return
    * @throws MetaException
    */
-  private List<String> filterDb(List<String> dbList) {
+  private List<String> filterDb(String catName, List<String> dbList) {
     // If the user is part of the Sentry service user list, then skip the authorization and
     // do not filter the objects.
     String userName = authzBindingFactory.getUserName();
@@ -215,6 +218,11 @@ public class SentryMetaStoreFilterHook implements MetaStoreFilterHook {
     try (HiveAuthzBinding authzBinding = getHiveAuthzBinding(userName)) {
       MetastoreAuthzObjectFilter<String> filter = new MetastoreAuthzObjectFilter<>(authzBinding,
         new ObjectExtractor<String>() {
+          @Override
+          public String getCatalogName(String o) {
+            return catName;
+          }
+
           @Override
           public String getDatabaseName(String o) {
             return o;
@@ -240,7 +248,7 @@ public class SentryMetaStoreFilterHook implements MetaStoreFilterHook {
    * @return
    * @throws MetaException
    */
-  private List<String> filterTab(String dbName, List<String> tabList) {
+  private List<String> filterTab(String catName, String dbName, List<String> tabList) {
     // If the user is part of the Sentry service user list, then skip the authorization and
     // do not filter the objects.
     String userName = authzBindingFactory.getUserName();
@@ -251,6 +259,11 @@ public class SentryMetaStoreFilterHook implements MetaStoreFilterHook {
     try (HiveAuthzBinding authzBinding = getHiveAuthzBinding(userName)) {
       MetastoreAuthzObjectFilter<String> filter = new MetastoreAuthzObjectFilter<>(authzBinding,
         new ObjectExtractor<String>() {
+          @Override
+          public String getCatalogName(String o) {
+            return catName;
+          }
+
           @Override
           public String getDatabaseName(String o) {
             return dbName;
@@ -287,6 +300,11 @@ public class SentryMetaStoreFilterHook implements MetaStoreFilterHook {
     try (HiveAuthzBinding authzBinding = getHiveAuthzBinding(userName)) {
       MetastoreAuthzObjectFilter<Table> filter = new MetastoreAuthzObjectFilter<>(authzBinding,
         new ObjectExtractor<Table>() {
+          @Override
+          public String getCatalogName(Table o) {
+            return (o != null) ? o.getCatName() : null;
+          }
+
           @Override
           public String getDatabaseName(Table o) {
             return (o != null) ? o.getDbName() : null;

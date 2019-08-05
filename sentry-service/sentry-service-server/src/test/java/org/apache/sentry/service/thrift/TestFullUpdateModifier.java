@@ -18,6 +18,7 @@
 
 package org.apache.sentry.service.thrift;
 
+import org.apache.hadoop.hive.metastore.api.Database;
 import org.apache.hadoop.hive.metastore.api.NotificationEvent;
 import org.apache.hadoop.hive.metastore.api.Partition;
 import org.apache.hadoop.hive.metastore.api.StorageDescriptor;
@@ -98,8 +99,9 @@ public class TestFullUpdateModifier {
     NotificationEvent event = new NotificationEvent(0, 0, CREATE_DATABASE.toString(), "");
     MessageDeserializer deserializer = Mockito.mock(SentryJSONMessageDeserializer.class);
 
+    Database database = new Database(DB, "", LOCATION, new HashMap<>());
     SentryJSONCreateDatabaseMessage message =
-            new SentryJSONCreateDatabaseMessage(SERVER, PRINCIPAL, DB, 0L, LOCATION);
+            new SentryJSONCreateDatabaseMessage(SERVER, PRINCIPAL, database, 0L, LOCATION);
     Mockito.when(deserializer.getCreateDatabaseMessage("")).thenReturn(message);
     FullUpdateModifier.applyEvent(update, event, deserializer);
     Map<String, Set<String>> expected = new HashMap<>();

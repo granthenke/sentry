@@ -54,6 +54,12 @@ public class TestMetastoreAuthzObjectFilter {
 
   private final MetastoreAuthzObjectFilter.ObjectExtractor<String> DB_NAME_EXTRACTOR =
     new ObjectExtractor<String>() {
+      // TODO: Get default catalog?
+      @Override
+      public String getCatalogName(String s) {
+        return null;
+      }
+
       @Override
       public String getDatabaseName(String s) {
         return s;
@@ -67,6 +73,12 @@ public class TestMetastoreAuthzObjectFilter {
 
   private final MetastoreAuthzObjectFilter.ObjectExtractor<HivePrivilegeObject> HIVE_OBJECT_EXTRACTOR =
     new ObjectExtractor<HivePrivilegeObject>() {
+      // TODO: Get default catalog?
+      @Override
+      public String getCatalogName(HivePrivilegeObject o) {
+        return null;
+      }
+
       @Override
       public String getDatabaseName(HivePrivilegeObject o) {
         return (o != null) ? o.getDbname() : null;
@@ -122,8 +134,14 @@ public class TestMetastoreAuthzObjectFilter {
     authzConf.setBoolean(HiveAuthzConf.AuthzConfVars.AUTHZ_RESTRICT_DEFAULT_DB.getVar(), b);
   }
 
-  private MetastoreAuthzObjectFilter.ObjectExtractor<String> createTableStringExtractor(String dbName) {
+  private MetastoreAuthzObjectFilter.ObjectExtractor<String> createTableStringExtractor(
+      String catName, String dbName) {
     return new ObjectExtractor<String>() {
+      @Override
+      public String getCatalogName(String s) {
+        return catName;
+      }
+
       @Override
       public String getDatabaseName(String s) {
         return dbName;
@@ -276,10 +294,11 @@ public class TestMetastoreAuthzObjectFilter {
   @Test
   public void testFilterTableStrings() {
     final String USER1 = "user1";
+    final String CAT1 = "hive";
     final String DB1 = "db1";
 
     MetastoreAuthzObjectFilter filter =
-      new MetastoreAuthzObjectFilter(mockBinding, createTableStringExtractor(DB1));
+      new MetastoreAuthzObjectFilter(mockBinding, createTableStringExtractor(CAT1, DB1));
     assertThat(filter).isNotNull();
 
     // Verify that null or empty lists do return an empty list (not null values to avoid NPE)

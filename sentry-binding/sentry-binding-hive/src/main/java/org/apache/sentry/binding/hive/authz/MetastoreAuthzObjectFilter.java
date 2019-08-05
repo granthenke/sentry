@@ -17,8 +17,6 @@
 
 package org.apache.sentry.binding.hive.authz;
 
-import static org.apache.hadoop.hive.metastore.MetaStoreUtils.DEFAULT_DATABASE_NAME;
-
 import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,6 +36,8 @@ import org.apache.sentry.core.model.db.DBModelAuthorizable.AuthorizableType;
 import org.apache.sentry.core.model.db.Database;
 import org.apache.sentry.core.model.db.Table;
 
+import static org.apache.hadoop.hive.metastore.Warehouse.DEFAULT_DATABASE_NAME;
+
 /**
  * This class uses Sentry authorization to filter a list of HMS metadata objects (or authorization
  * objects) based on the Sentry privileges that a user is part of. The methods are commonly used
@@ -50,6 +50,7 @@ public class MetastoreAuthzObjectFilter<T> {
    * @param <T>
    */
   public interface ObjectExtractor<T> {
+    String getCatalogName(T t);
     String getDatabaseName(T t);
     String getTableName(T t);
 

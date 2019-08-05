@@ -811,7 +811,8 @@ public class TestHMSFollower {
         EventMessage.EventType.ALTER_TABLE.toString(),
         messageFactory.buildAlterTableMessage(
             new Table(tableName, dbName, null, 0, 0, 0, sd, null, null, null, null, null),
-            new Table(newTableName, newDbName, null, 0, 0, 0, sd, null, null, null, null, null))
+            new Table(newTableName, newDbName, null, 0, 0, 0, sd, null, null, null, null, null),
+            false)
             .toString());
     notificationEvent.setDbName(newDbName);
     notificationEvent.setTableName(newTableName);
@@ -917,7 +918,7 @@ public class TestHMSFollower {
     // This is an invalid event and should be processed by sentry store.
     // Event Id should be explicitly persisted using persistLastProcessedNotificationID
     notificationEvent = new NotificationEvent(inputEventId, 0, EventType.ALTER_PARTITION.toString(),
-        messageFactory.buildAlterPartitionMessage(table, partition, partition).toString());
+        messageFactory.buildAlterPartitionMessage(table, partition, partition, false).toString());
     notificationEvent.setDbName(dbName);
     notificationEvent.setTableName(tableName1);
     events.add(notificationEvent);
@@ -935,7 +936,7 @@ public class TestHMSFollower {
     Partition updatedPartition = new Partition(partition);
     updatedPartition.setSd(sd);
     notificationEvent = new NotificationEvent(inputEventId, 0, EventType.ALTER_PARTITION.toString(),
-      messageFactory.buildAlterPartitionMessage(table, partition, updatedPartition).toString());
+      messageFactory.buildAlterPartitionMessage(table, partition, updatedPartition, false).toString());
     notificationEvent.setDbName(dbName);
     notificationEvent.setTableName(tableName1);
     events.add(notificationEvent);
@@ -1035,7 +1036,8 @@ public class TestHMSFollower {
         EventMessage.EventType.ALTER_TABLE.toString(),
         messageFactory.buildAlterTableMessage(
             new Table(tableName1, dbName, null, 0, 0, 0, sd, null, null, null, null, null),
-            new Table(tableName1, dbName, null, 0, 0, 0, sd, null, null, null, null, null))
+            new Table(tableName1, dbName, null, 0, 0, 0, sd, null, null, null, null, null),
+            false)
             .toString());
     notificationEvent.setDbName(dbName);
     notificationEvent.setTableName(tableName1);
@@ -1272,7 +1274,8 @@ public class TestHMSFollower {
         EventMessage.EventType.ALTER_TABLE.toString(),
         messageFactory.buildAlterTableMessage(
             new Table(tableName, dbName, null, 0, 0, 0, sd, null, null, null, null, null),
-            new Table(newTableName, newDbName, null, 0, 0, 0, sd, null, null, null, null, null))
+            new Table(newTableName, newDbName, null, 0, 0, 0, sd, null, null, null, null, null),
+            false)
             .toString());
     notificationEvent.setDbName(newDbName);
     notificationEvent.setTableName(newTableName);

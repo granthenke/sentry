@@ -81,7 +81,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.apache.hadoop.hive.metastore.MetaStoreUtils.DEFAULT_DATABASE_NAME;
+import static org.apache.hadoop.hive.metastore.Warehouse.DEFAULT_DATABASE_NAME;
 
 public abstract class HiveAuthzBindingHookBase extends AbstractSemanticAnalyzerHook {
   private static final Logger LOG = LoggerFactory
@@ -558,7 +558,6 @@ public abstract class HiveAuthzBindingHookBase extends AbstractSemanticAnalyzerH
    *
    * @param inputHierarchy
    * @param entity
-   * @param sentryContext
    */
   protected void addColumnHierarchy(Set<List<DBModelAuthorizable>> inputHierarchy,
       ReadEntity entity) {
@@ -585,8 +584,7 @@ public abstract class HiveAuthzBindingHookBase extends AbstractSemanticAnalyzerH
    * Get Authorizable from inputs and put into inputHierarchy
    *
    * @param inputHierarchy
-   * @param entity
-   * @param sentryContext
+   * @param inputs
    */
   public void getInputHierarchyFromInputs(Set<List<DBModelAuthorizable>> inputHierarchy,
       Set<ReadEntity> inputs) {
@@ -800,9 +798,9 @@ public abstract class HiveAuthzBindingHookBase extends AbstractSemanticAnalyzerH
    * Returns the hooks specified in a configuration variable.  The hooks are returned in a list in
    * the order they were specified in the configuration variable.
    *
-   * @param hookConfVar The configuration variable specifying a comma separated list of the hook
-   *                    class names.
-   * @return            A list of the hooks, in the order they are listed in the value of hookConfVar
+   * @param csHooks The configuration variable specifying a comma separated list of the hook
+   *                class names.
+   * @return A list of the hooks, in the order they are listed in the value of hookConfVar
    * @throws Exception
    */
   private static <T extends Hook> List<T> getHooks(String csHooks) throws Exception {

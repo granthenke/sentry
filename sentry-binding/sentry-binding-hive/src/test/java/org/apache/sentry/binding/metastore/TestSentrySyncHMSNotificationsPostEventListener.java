@@ -242,7 +242,7 @@ public class TestSentrySyncHMSNotificationsPostEventListener {
     new_tb.setTableName(TABLENAME);
     new_tb.setOwner(OWNER_NEW);
 
-    AlterTableEvent alterTableEvent = new AlterTableEvent(old_tb, new_tb, true, null);
+    AlterTableEvent alterTableEvent = new AlterTableEvent(old_tb, new_tb, true, false, null);
     setEventId(EVENT_ID_SET, alterTableEvent, eventId);
     eventListener.onAlterTable(alterTableEvent);
 
@@ -265,7 +265,7 @@ public class TestSentrySyncHMSNotificationsPostEventListener {
     new_tb.setTableName(TABLENAME_NEW);
     new_tb.setOwner(OWNER);
 
-    AlterTableEvent alterTableEvent = new AlterTableEvent(old_tb, new_tb, true, null);
+    AlterTableEvent alterTableEvent = new AlterTableEvent(old_tb, new_tb, true, false, null);
     setEventId(EVENT_ID_SET, alterTableEvent, eventId);
     eventListener.onAlterTable(alterTableEvent);
 
@@ -288,7 +288,7 @@ public class TestSentrySyncHMSNotificationsPostEventListener {
     new_tb.setTableName(TABLENAME);
     new_tb.setOwner(OWNER);
 
-    AlterTableEvent alterTableEvent = new AlterTableEvent(old_tb, new_tb, true, null);
+    AlterTableEvent alterTableEvent = new AlterTableEvent(old_tb, new_tb, true, false, null);
     setEventId(EVENT_ID_SET, alterTableEvent, eventId);
     eventListener.onAlterTable(alterTableEvent);
 

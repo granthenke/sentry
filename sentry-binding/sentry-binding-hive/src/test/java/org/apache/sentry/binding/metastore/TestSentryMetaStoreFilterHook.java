@@ -181,13 +181,14 @@ public class TestSentryMetaStoreFilterHook {
   @Test
   public void testFilterListOfTables() {
     final String USER1 = "user1";
+    final String CAT1 = "hive";
     final String DB1 = "db1";
     SentryMetaStoreFilterHook filterHook = new SentryMetaStoreFilterHook(null, authzConf,
       getMockBinding(USER1));
 
     // Verify that only t2 is returned by the filter
     restrictTablesNamesOnBinding(USER1, DB1, Arrays.asList("t1", "t3"));
-    assertThat(filterHook.filterTableNames(DB1, Arrays.asList("t1", "t2", "t3"))).containsExactly("t2");
+    assertThat(filterHook.filterTableNames(CAT1, DB1, Arrays.asList("t1", "t2", "t3"))).containsExactly("t2");
     assertThat(filterHook.filterTables(Arrays.asList(
       newHmsTable(DB1, "t1"),
       newHmsTable(DB1, "t2"),

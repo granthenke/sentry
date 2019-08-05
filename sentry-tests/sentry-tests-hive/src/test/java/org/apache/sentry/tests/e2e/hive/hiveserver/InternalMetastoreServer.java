@@ -29,7 +29,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.metastore.HiveMetaStore;
-import org.apache.hadoop.hive.shims.ShimLoader;
+import org.apache.hadoop.hive.metastore.security.HadoopThriftAuthBridge;
 
 public class InternalMetastoreServer extends AbstractHiveServer {
   private final HiveConf conf;
@@ -65,7 +65,7 @@ public class InternalMetastoreServer extends AbstractHiveServer {
       public Void call() throws Exception {
         try {
           HiveMetaStore.startMetaStore(getMetastorePort(conf),
-              ShimLoader.getHadoopThriftAuthBridge(), conf, startLock, startCondition, startedServing);
+              HadoopThriftAuthBridge.getBridge(), conf, startLock, startCondition, startedServing);
         } catch (Throwable e) {
           throw new Exception("Error starting metastore", e);
         }

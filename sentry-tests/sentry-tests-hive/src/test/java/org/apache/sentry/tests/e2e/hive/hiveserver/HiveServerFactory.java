@@ -228,7 +228,6 @@ public class HiveServerFactory {
 
     properties.put(METASTORE_SETUGI, "true");
     properties.put(METASTORE_CLIENT_TIMEOUT, "100");
-    properties.put(ConfVars.HIVE_WAREHOUSE_SUBDIR_INHERIT_PERMS.varname, "true");
 
     properties.put(ConfVars.HIVESTATSAUTOGATHER.varname, "false");
     properties.put(ConfVars.HIVE_STATS_COLLECT_SCANCOLS.varname, "true");

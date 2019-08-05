@@ -67,6 +67,7 @@ import java.util.Set;
 import org.apache.sentry.provider.cache.PrivilegeCache;
 import org.apache.sentry.provider.cache.SimplePrivilegeCache;
 import org.apache.sentry.provider.common.AuthorizationProvider;
+import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -340,21 +341,20 @@ public abstract class MetastoreAuthzBindingBase extends MetaStorePreEventListene
         partitionLocation = mapiPart.getSd().getLocation();
 	    }
 	    if (!StringUtils.isEmpty(partitionLocation)) {
-	      String tableLocation = context
-	          .getHandler()
-	          .get_table(mapiPart.getDbName(),
-	              mapiPart.getTableName()).getSd().getLocation();
-	      String uriPath;
-	      try {
-	        uriPath = PathUtils.parseDFSURI(warehouseDir, mapiPart
-	            .getSd().getLocation());
-	      } catch (URISyntaxException e) {
-	        throw new MetaException(e.getMessage());
-	      }
-        if (!partitionLocation.equals(tableLocation) &&
-            !partitionLocation.startsWith(tableLocation + File.separator)) {
-          outputBuilder.addUriToOutput(getAuthServer(), uriPath, warehouseDir);
-	      }
+        try {
+          String tableLocation = context
+              .getHandler()
+              .get_table(mapiPart.getDbName(),
+                  mapiPart.getTableName()).getSd().getLocation();
+          String uriPath = PathUtils.parseDFSURI(warehouseDir, mapiPart
+                .getSd().getLocation());
+          if (!partitionLocation.equals(tableLocation) &&
+              !partitionLocation.startsWith(tableLocation + File.separator)) {
+            outputBuilder.addUriToOutput(getAuthServer(), uriPath, warehouseDir);
+          }
+        } catch (TException|URISyntaxException e) {
+          throw new MetaException(e.getMessage());
+        }
 	    }
       authorizeMetastoreAccess(HiveOperation.ALTERTABLE_ADDPARTS,
 	        inputBuilder.build(), outputBuilder.build());
@@ -397,17 +397,15 @@ public abstract class MetastoreAuthzBindingBase extends MetaStorePreEventListene
     Partition partition = context.getNewPartition();
     String partitionLocation = getSdLocation(partition.getSd());
     if (!StringUtils.isEmpty(partitionLocation)) {
-      String tableLocation = context.getHandler().get_table(
-          partition.getDbName(), partition.getTableName()).getSd().getLocation();
-
-      String uriPath;
       try {
-        uriPath = PathUtils.parseDFSURI(warehouseDir, partitionLocation);
-        } catch (URISyntaxException e) {
+        String tableLocation = context.getHandler().get_table(
+            partition.getDbName(), partition.getTableName()).getSd().getLocation();
+        String uriPath = PathUtils.parseDFSURI(warehouseDir, partitionLocation);
+        if (!partitionLocation.startsWith(tableLocation + File.separator)) {
+          outputBuilder.addUriToOutput(getAuthServer(), uriPath, warehouseDir);
+        }
+      } catch (TException|URISyntaxException e) {
         throw new MetaException(e.getMessage());
-      }
-      if (!partitionLocation.startsWith(tableLocation + File.separator)) {
-        outputBuilder.addUriToOutput(getAuthServer(), uriPath, warehouseDir);
       }
     }
     authorizeMetastoreAccess(

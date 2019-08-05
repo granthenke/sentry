@@ -27,10 +27,8 @@ import org.apache.hadoop.hive.ql.ErrorMsg;
 import org.apache.hadoop.hive.ql.metadata.Hive;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.metadata.Table;
-import org.apache.hadoop.hive.ql.metadata.formatting.MetaDataFormatUtils;
 import org.apache.hadoop.hive.ql.plan.HiveOperation;
 import org.apache.hadoop.hive.ql.plan.ShowColumnsDesc;
-import org.apache.hadoop.hive.ql.session.SessionState;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.sentry.binding.hive.authz.HiveAuthzBindingHookBase;
 import org.apache.sentry.binding.hive.authz.HiveAuthzBinding;
@@ -117,9 +115,10 @@ public class SentryFilterDDLTask extends DDLTask {
       cols.addAll(table.getPartCols());
       // In case the query is served by HiveServer2, don't pad it with spaces,
       // as HiveServer2 output is consumed by JDBC/ODBC clients.
-      boolean isOutputPadded = !SessionState.get().isHiveServerQuery();
-      outStream.writeBytes(MetaDataFormatUtils.getAllColumnsInformation(
-          fiterColumns(cols, table), false, isOutputPadded, null));
+      // TODO: Find a replacement?
+//      boolean isOutputPadded = !SessionState.get().isHiveServerQuery();
+//      outStream.writeBytes(MetaDataFormatUtils.getAllColumnsInformation(
+//          fiterColumns(cols, table), false, isOutputPadded, null));
       outStream.close();
       outStream = null;
     } catch (IOException e) {
@@ -148,7 +147,7 @@ public class SentryFilterDDLTask extends DDLTask {
     feedSubscribers = ddlTask.getFeedSubscribers();
     taskTag = ddlTask.getTaskTag();
     setLocalMode(ddlTask.isLocalMode());
-    setRetryCmdWhenFail(ddlTask.ifRetryCmdWhenFail());
+//    setRetryCmdWhenFail(ddlTask.ifRetryCmdWhenFail());
     queryPlan = ddlTask.getQueryPlan();
     jobID = ddlTask.getJobID();
     setException(ddlTask.getException());

@@ -81,13 +81,6 @@ public class HiveAuthzPrivilegesMap {
         setOperationScope(HiveOperationScope.TABLE).
         setOperationType(HiveOperationType.DDL).
         build();
-    HiveAuthzPrivileges indexTablePrivilege = new HiveAuthzPrivileges.AuthzPrivilegeBuilder().
-        addInputObjectPriviledge(AuthorizableType.Table, EnumSet.of(DBModelAction.INDEX)).
-        //Only used for create index location
-        addOutputObjectPriviledge(AuthorizableType.URI, EnumSet.of(DBModelAction.ALL)).
-        setOperationScope(HiveOperationScope.TABLE).
-        setOperationType(HiveOperationType.DDL).
-        build();
 
     HiveAuthzPrivileges alterTableAndUriPrivilege = new HiveAuthzPrivileges.AuthzPrivilegeBuilder().
         addOutputObjectPriviledge(AuthorizableType.Table, EnumSet.of(DBModelAction.ALTER)).
@@ -118,14 +111,12 @@ public class HiveAuthzPrivilegesMap {
         setOperationType(HiveOperationType.DDL).
         build();
 
-    /* TODO: once HIVE-18762 is in the hiver version integrated with Sentry, uncomment this block
     HiveAuthzPrivileges alterTableSetOwnerPrivilege = new HiveAuthzPrivileges.AuthzPrivilegeBuilder().
         addOutputObjectPriviledge(AuthorizableType.Table, EnumSet.of(DBModelAction.ALL)).
         setOperationScope(HiveOperationScope.TABLE).
         setOperationType(HiveOperationType.DDL).
         setGrantOption(true).
         build();
-        */
 
     // input required privilege from Hive: SELECT on column level and DELETE on table level
     // output required privilege from Hive: INSERT on table level
@@ -264,11 +255,6 @@ public class HiveAuthzPrivilegesMap {
     hiveAuthzStmtPrivMap.put(HiveOperation.DROPTABLE, dropTablePrivilege);
     hiveAuthzStmtPrivMap.put(HiveOperation.CREATEVIEW, createViewPrivilege);
     hiveAuthzStmtPrivMap.put(HiveOperation.DROPVIEW, dropTablePrivilege);
-    hiveAuthzStmtPrivMap.put(HiveOperation.CREATEINDEX, indexTablePrivilege);
-    hiveAuthzStmtPrivMap.put(HiveOperation.DROPINDEX, indexTablePrivilege);
-    hiveAuthzStmtPrivMap.put(HiveOperation.ALTERINDEX_PROPS, indexTablePrivilege);//TODO: Needs test case
-    hiveAuthzStmtPrivMap.put(HiveOperation.ALTERINDEX_REBUILD, indexTablePrivilege);
-
 
     hiveAuthzStmtPrivMap.put(HiveOperation.ALTERTABLE_PROPERTIES, alterTablePrivilege);
     hiveAuthzStmtPrivMap.put(HiveOperation.ALTERTABLE_SERDEPROPERTIES, alterTablePrivilege);
@@ -300,8 +286,7 @@ public class HiveAuthzPrivilegesMap {
     hiveAuthzStmtPrivMap.put(HiveOperation.ALTERVIEW_PROPERTIES, alterTablePrivilege);
     hiveAuthzStmtPrivMap.put(HiveOperation.ALTERVIEW_AS, alterViewAsPrivilege);
     hiveAuthzStmtPrivMap.put(HiveOperation.ALTERVIEW_RENAME, alterTableRenamePrivilege);
-    // TODO: once HIVE-18762 is in the hiver version integrated with Sentry, uncomment next line
-    // hiveAuthzStmtPrivMap.put(HiveOperation.ALTERTABLE_OWNER, alterTableSetOwnerPrivilege);
+     hiveAuthzStmtPrivMap.put(HiveOperation.ALTERTABLE_OWNER, alterTableSetOwnerPrivilege);
 
     hiveAuthzStmtPrivMap.put(HiveOperation.ALTERTABLE_DROPPARTS, dropPartitionPrivilege);
     hiveAuthzStmtPrivMap.put(HiveOperation.ALTERTABLE_ADDPARTS, addPartitionPrivilege);
@@ -334,7 +319,6 @@ public class HiveAuthzPrivilegesMap {
     hiveAuthzStmtPrivMap.put(HiveOperation.SHOW_TBLPROPERTIES, tableMetaDataPrivilege);
     hiveAuthzStmtPrivMap.put(HiveOperation.SHOW_CREATETABLE, tableMetaDataPrivilege);
     // SHOWFUNCTIONS
-    hiveAuthzStmtPrivMap.put(HiveOperation.SHOWINDEXES, tableMetaDataPrivilege);
     hiveAuthzStmtPrivMap.put(HiveOperation.SHOWPARTITIONS, tableMetaDataPrivilege);
     // SHOWLOCKS
     hiveAuthzStmtPrivMap.put(HiveOperation.EXPORT, tableExportPrivilege);

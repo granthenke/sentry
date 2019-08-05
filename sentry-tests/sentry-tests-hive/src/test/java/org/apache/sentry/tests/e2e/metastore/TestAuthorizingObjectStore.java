@@ -227,39 +227,6 @@ public class TestAuthorizingObjectStore extends
     assertThat(
         client.getPartitionsByNames(dbName2, tabName4, new ArrayList<String>(Arrays.asList("")))
             .size(), equalTo(0));
-    try {
-      client.getIndex(dbName1, tabName1, "empty");
-      fail("NoSuchObjectException should have been thrown");
-    } catch (NoSuchObjectException noe) {
-      // ignore, just make sure the authorization is successful.
-    }
-    try {
-      client.getIndex(dbName1, tabName2, "empty");
-      fail("NoSuchObjectException should have been thrown");
-    } catch (NoSuchObjectException noe) {
-      // ignore, just make sure the authorization is successful.
-    }
-    try {
-      client.getIndex(dbName2, tabName3, "empty");
-      fail("NoSuchObjectException should have been thrown");
-    } catch (NoSuchObjectException noe) {
-      // ignore, just make sure the authorization is successful.
-    }
-    try {
-      client.getIndex(dbName2, tabName3, "empty");
-      fail("NoSuchObjectException should have been thrown");
-    } catch (NoSuchObjectException noe) {
-      // ignore, just make sure the authorization is successful.
-    }
-
-    assertThat(client.listIndexes(dbName1, tabName1, (short) 1).size(), equalTo(0));
-    assertThat(client.listIndexes(dbName1, tabName2, (short) 1).size(), equalTo(0));
-    assertThat(client.listIndexes(dbName2, tabName3, (short) 1).size(), equalTo(0));
-    assertThat(client.listIndexes(dbName2, tabName4, (short) 1).size(), equalTo(0));
-    assertThat(client.listIndexNames(dbName1, tabName1, (short) 1).size(), equalTo(0));
-    assertThat(client.listIndexNames(dbName1, tabName2, (short) 1).size(), equalTo(0));
-    assertThat(client.listIndexNames(dbName2, tabName3, (short) 1).size(), equalTo(0));
-    assertThat(client.listIndexNames(dbName2, tabName4, (short) 1).size(), equalTo(0));
     assertThat(client.getPartitionWithAuthInfo(dbName1, tabName1,
         new ArrayList<String>(Arrays.asList(partitionVal)), "tempuser", new ArrayList<String>(
             Arrays.asList("tempgroup"))), notNullValue());
@@ -374,39 +341,6 @@ public class TestAuthorizingObjectStore extends
     assertThat(
         client.getPartitionsByNames(dbName2, tabName4, new ArrayList<String>(Arrays.asList("")))
             .size(), equalTo(0));
-    try {
-      client.getIndex(dbName1, tabName1, "empty");
-      fail("NoSuchObjectException should have been thrown");
-    } catch (NoSuchObjectException noe) {
-      // ignore, just make sure the authorization is successful.
-    }
-    try {
-      client.getIndex(dbName1, tabName2, "empty");
-      fail("NoSuchObjectException should have been thrown");
-    } catch (NoSuchObjectException noe) {
-      // ignore, just make sure the authorization is successful.
-    }
-    try {
-      client.getIndex(dbName2, tabName3, "empty");
-      fail("NoSuchObjectException should have been thrown");
-    } catch (NoSuchObjectException noe) {
-      // ignore, just make sure the authorization is successful.
-    }
-    try {
-      client.getIndex(dbName2, tabName3, "empty");
-      fail("NoSuchObjectException should have been thrown");
-    } catch (NoSuchObjectException noe) {
-      // ignore, just make sure the authorization is successful.
-    }
-
-    assertThat(client.listIndexes(dbName1, tabName1, (short) 1).size(), equalTo(0));
-    assertThat(client.listIndexes(dbName1, tabName2, (short) 1).size(), equalTo(0));
-    assertThat(client.listIndexes(dbName2, tabName3, (short) 1).size(), equalTo(0));
-    assertThat(client.listIndexes(dbName2, tabName4, (short) 1).size(), equalTo(0));
-    assertThat(client.listIndexNames(dbName1, tabName1, (short) 1).size(), equalTo(0));
-    assertThat(client.listIndexNames(dbName1, tabName2, (short) 1).size(), equalTo(0));
-    assertThat(client.listIndexNames(dbName2, tabName3, (short) 1).size(), equalTo(0));
-    assertThat(client.listIndexNames(dbName2, tabName4, (short) 1).size(), equalTo(0));
     assertThat(client.getPartitionWithAuthInfo(dbName1, tabName1,
         new ArrayList<String>(Arrays.asList(partitionVal)), "tempuser", new ArrayList<String>(
             Arrays.asList("tempgroup"))), notNullValue());
@@ -657,71 +591,6 @@ public class TestAuthorizingObjectStore extends
       client.getPartitionsByNames(dbName2, tabName4, new ArrayList<String>(Arrays.asList("")));
       fail("MetaException should have been thrown");
     } catch (NoSuchObjectException noe) {
-      // ignore, just make sure the authorization is failed.
-    }
-
-    try {
-      client.getIndex(dbName1, tabName1, "empty");
-      fail("NoSuchObjectException should have been thrown");
-    } catch (NoSuchObjectException noe) {
-      // ignore, just make sure the authorization is successful.
-    }
-    try {
-      client.getIndex(dbName1, tabName2, "empty");
-      fail("MetaException should have been thrown");
-    } catch (MetaException noe) {
-      // ignore, just make sure the authorization is failed.
-    }
-    try {
-      client.getIndex(dbName2, tabName3, "empty");
-      fail("MetaException should have been thrown");
-    } catch (MetaException noe) {
-      // ignore, just make sure the authorization is failed.
-    }
-    try {
-      client.getIndex(dbName2, tabName3, "empty");
-      fail("MetaException should have been thrown");
-    } catch (MetaException noe) {
-      // ignore, just make sure the authorization is failed.
-    }
-
-    assertThat(client.listIndexes(dbName1, tabName1, (short) 1).size(), equalTo(0));
-    try {
-      client.listIndexes(dbName1, tabName2, (short) 1);
-      fail("MetaException should have been thrown");
-    } catch (MetaException noe) {
-      // ignore, just make sure the authorization is failed.
-    }
-    try {
-      client.listIndexes(dbName2, tabName3, (short) 1);
-      fail("MetaException should have been thrown");
-    } catch (MetaException noe) {
-      // ignore, just make sure the authorization is failed.
-    }
-    try {
-      client.listIndexes(dbName2, tabName4, (short) 1);
-      fail("MetaException should have been thrown");
-    } catch (MetaException noe) {
-      // ignore, just make sure the authorization is failed.
-    }
-
-    assertThat(client.listIndexNames(dbName1, tabName1, (short) 1).size(), equalTo(0));
-    try {
-      client.listIndexNames(dbName1, tabName2, (short) 1);
-      fail("MetaException should have been thrown");
-    } catch (MetaException noe) {
-      // ignore, just make sure the authorization is failed.
-    }
-    try {
-      client.listIndexNames(dbName2, tabName3, (short) 1);
-      fail("MetaException should have been thrown");
-    } catch (MetaException noe) {
-      // ignore, just make sure the authorization is failed.
-    }
-    try {
-      client.listIndexNames(dbName2, tabName4, (short) 1);
-      fail("MetaException should have been thrown");
-    } catch (MetaException noe) {
       // ignore, just make sure the authorization is failed.
     }
 
@@ -996,81 +865,6 @@ public class TestAuthorizingObjectStore extends
       client.getPartitionsByNames(dbName2, tabName4, new ArrayList<String>(Arrays.asList("")));
       fail("MetaException should have been thrown");
     } catch (TException noe) {
-      // ignore, just make sure the authorization is failed.
-    }
-
-    try {
-      client.getIndex(dbName1, tabName1, "empty");
-      fail("MetaException should have been thrown");
-    } catch (MetaException noe) {
-      // ignore, just make sure the authorization is failed.
-    }
-    try {
-      client.getIndex(dbName1, tabName2, "empty");
-      fail("MetaException should have been thrown");
-    } catch (MetaException noe) {
-      // ignore, just make sure the authorization is failed.
-    }
-    try {
-      client.getIndex(dbName2, tabName3, "empty");
-      fail("MetaException should have been thrown");
-    } catch (MetaException noe) {
-      // ignore, just make sure the authorization is failed.
-    }
-    try {
-      client.getIndex(dbName2, tabName3, "empty");
-      fail("MetaException should have been thrown");
-    } catch (MetaException noe) {
-      // ignore, just make sure the authorization is failed.
-    }
-
-    try {
-      client.listIndexes(dbName1, tabName1, (short) 1);
-      fail("MetaException should have been thrown");
-    } catch (MetaException noe) {
-      // ignore, just make sure the authorization is failed.
-    }
-    try {
-      client.listIndexes(dbName1, tabName2, (short) 1);
-      fail("MetaException should have been thrown");
-    } catch (MetaException noe) {
-      // ignore, just make sure the authorization is failed.
-    }
-    try {
-      client.listIndexes(dbName2, tabName3, (short) 1);
-      fail("MetaException should have been thrown");
-    } catch (MetaException noe) {
-      // ignore, just make sure the authorization is failed.
-    }
-    try {
-      client.listIndexes(dbName2, tabName4, (short) 1);
-      fail("MetaException should have been thrown");
-    } catch (MetaException noe) {
-      // ignore, just make sure the authorization is failed.
-    }
-
-    try {
-      client.listIndexNames(dbName1, tabName1, (short) 1);
-      fail("MetaException should have been thrown");
-    } catch (MetaException noe) {
-      // ignore, just make sure the authorization is failed.
-    }
-    try {
-      client.listIndexNames(dbName1, tabName2, (short) 1);
-      fail("MetaException should have been thrown");
-    } catch (MetaException noe) {
-      // ignore, just make sure the authorization is failed.
-    }
-    try {
-      client.listIndexNames(dbName2, tabName3, (short) 1);
-      fail("MetaException should have been thrown");
-    } catch (MetaException noe) {
-      // ignore, just make sure the authorization is failed.
-    }
-    try {
-      client.listIndexNames(dbName2, tabName4, (short) 1);
-      fail("MetaException should have been thrown");
-    } catch (MetaException noe) {
       // ignore, just make sure the authorization is failed.
     }
 

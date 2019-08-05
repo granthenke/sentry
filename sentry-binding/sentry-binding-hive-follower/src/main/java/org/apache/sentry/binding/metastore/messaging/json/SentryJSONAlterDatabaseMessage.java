@@ -18,38 +18,31 @@
 
 package org.apache.sentry.binding.metastore.messaging.json;
 
-import org.apache.hadoop.hive.metastore.api.Partition;
-import org.apache.hadoop.hive.metastore.api.Table;
-import org.apache.hadoop.hive.metastore.messaging.json.JSONAlterPartitionMessage;
+import org.apache.hadoop.hive.metastore.api.Database;
+import org.apache.hadoop.hive.metastore.messaging.json.JSONAlterDatabaseMessage;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import java.util.List;
-
-public class SentryJSONAlterPartitionMessage extends JSONAlterPartitionMessage {
+public class SentryJSONAlterDatabaseMessage extends JSONAlterDatabaseMessage {
   @JsonProperty
   private String newLocation;
   @JsonProperty
   private String oldLocation;
-  @JsonProperty
-  private List<String> newValues;
 
-  public SentryJSONAlterPartitionMessage() {
+  public SentryJSONAlterDatabaseMessage() {
   }
 
-  public SentryJSONAlterPartitionMessage(String server, String servicePrincipal, Table tableObj,
-      Partition partitionObjBefore, Partition partitionObjAfter, boolean isTruncateOp, Long timestamp) {
-    this(server, servicePrincipal, tableObj, partitionObjBefore, partitionObjAfter, isTruncateOp, timestamp,
-        partitionObjBefore.getSd().getLocation(), partitionObjAfter.getSd().getLocation(),
-        partitionObjAfter.getValues());
+  public SentryJSONAlterDatabaseMessage(String server, String servicePrincipal, Database dbObjBefore,
+                                        Database dbObjAfter, Long timestamp) {
+    this(server, servicePrincipal, dbObjBefore, dbObjAfter, timestamp,
+        dbObjBefore.getLocationUri(), dbObjAfter.getLocationUri());
   }
 
-  public SentryJSONAlterPartitionMessage(String server, String servicePrincipal, Table tableObj,
-      Partition partitionObjBefore, Partition partitionObjAfter, boolean isTruncateOp,
-      Long timestamp, String oldLocation, String newLocation, List<String> newValues) {
-    super(server, servicePrincipal, tableObj, partitionObjBefore, partitionObjAfter, isTruncateOp, timestamp);
+  public SentryJSONAlterDatabaseMessage(String server, String servicePrincipal,
+                                        Database dbObjBefore, Database dbObjAfter, Long timestamp,
+                                        String oldLocation, String newLocation) {
+    super(server, servicePrincipal, dbObjBefore, dbObjAfter, timestamp);
     this.newLocation = newLocation;
     this.oldLocation = oldLocation;
-    this.newValues = newValues;
   }
 
   public String getNewLocation() {
@@ -58,10 +51,6 @@ public class SentryJSONAlterPartitionMessage extends JSONAlterPartitionMessage {
 
   public String getOldLocation() {
     return oldLocation;
-  }
-
-  public List<String> getNewValues() {
-    return newValues;
   }
 
   @Override

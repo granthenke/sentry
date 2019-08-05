@@ -18,19 +18,31 @@
 
 package org.apache.sentry.binding.metastore.messaging.json;
 
-import org.apache.hadoop.hive.metastore.messaging.AlterIndexMessage;
+import org.apache.hadoop.hive.metastore.messaging.AbortTxnMessage;
+import org.apache.hadoop.hive.metastore.messaging.AddForeignKeyMessage;
+import org.apache.hadoop.hive.metastore.messaging.AddNotNullConstraintMessage;
+import org.apache.hadoop.hive.metastore.messaging.AddPrimaryKeyMessage;
+import org.apache.hadoop.hive.metastore.messaging.AddUniqueConstraintMessage;
+import org.apache.hadoop.hive.metastore.messaging.AllocWriteIdMessage;
+import org.apache.hadoop.hive.metastore.messaging.CommitTxnMessage;
 import org.apache.hadoop.hive.metastore.messaging.CreateFunctionMessage;
-import org.apache.hadoop.hive.metastore.messaging.CreateIndexMessage;
+import org.apache.hadoop.hive.metastore.messaging.DropConstraintMessage;
 import org.apache.hadoop.hive.metastore.messaging.DropFunctionMessage;
-import org.apache.hadoop.hive.metastore.messaging.DropIndexMessage;
 import org.apache.hadoop.hive.metastore.messaging.InsertMessage;
 import org.apache.hadoop.hive.metastore.messaging.MessageDeserializer;
-import org.apache.hadoop.hive.metastore.messaging.json.JSONAlterIndexMessage;
+import org.apache.hadoop.hive.metastore.messaging.OpenTxnMessage;
+import org.apache.hadoop.hive.metastore.messaging.json.JSONAbortTxnMessage;
+import org.apache.hadoop.hive.metastore.messaging.json.JSONAddForeignKeyMessage;
+import org.apache.hadoop.hive.metastore.messaging.json.JSONAddNotNullConstraintMessage;
+import org.apache.hadoop.hive.metastore.messaging.json.JSONAddPrimaryKeyMessage;
+import org.apache.hadoop.hive.metastore.messaging.json.JSONAddUniqueConstraintMessage;
+import org.apache.hadoop.hive.metastore.messaging.json.JSONAllocWriteIdMessage;
+import org.apache.hadoop.hive.metastore.messaging.json.JSONCommitTxnMessage;
 import org.apache.hadoop.hive.metastore.messaging.json.JSONCreateFunctionMessage;
-import org.apache.hadoop.hive.metastore.messaging.json.JSONCreateIndexMessage;
+import org.apache.hadoop.hive.metastore.messaging.json.JSONDropConstraintMessage;
 import org.apache.hadoop.hive.metastore.messaging.json.JSONDropFunctionMessage;
-import org.apache.hadoop.hive.metastore.messaging.json.JSONDropIndexMessage;
 import org.apache.hadoop.hive.metastore.messaging.json.JSONInsertMessage;
+import org.apache.hadoop.hive.metastore.messaging.json.JSONOpenTxnMessage;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -53,6 +65,15 @@ public class SentryJSONMessageDeserializer extends MessageDeserializer {
       return mapper.readValue(messageBody, SentryJSONCreateDatabaseMessage.class);
     } catch (Exception e) {
       throw new IllegalArgumentException("Could not construct SentryJSONCreateDatabaseMessage: ", e);
+    }
+  }
+
+  @Override
+  public SentryJSONAlterDatabaseMessage getAlterDatabaseMessage(String messageBody) {
+    try {
+      return mapper.readValue(messageBody, SentryJSONAlterDatabaseMessage.class);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Could not construct SentryJSONAlterDatabaseMessage: ", e);
     }
   }
 
@@ -169,47 +190,6 @@ public class SentryJSONMessageDeserializer extends MessageDeserializer {
   }
 
   /**
-   * Method to de-serialize CreateIndexMessage instance.                                                                                                                                                   +   */
-  @Override
-  public CreateIndexMessage getCreateIndexMessage(String messageBody) {
-    // Sentry does not need this message, but it needs to be implemented so that Hive can
-    // complete the notification log for such event.
-    try {
-      return mapper.readValue(messageBody, JSONCreateIndexMessage.class);
-    } catch (Exception e) {
-      throw new IllegalArgumentException("Could not construct JSONCreateIndexMessage: ", e);
-    }
-  }
-
-  /**
-   * Method to de-serialize DropIndexMessage instance.
-   */
-  @Override
-  public DropIndexMessage getDropIndexMessage(String messageBody) {
-    // Sentry does not need this message, but it needs to be implemented so that Hive can
-    // complete the notification log for such event.
-    try {
-      return mapper.readValue(messageBody, JSONDropIndexMessage.class);
-    } catch (Exception e) {
-      throw new IllegalArgumentException("Could not construct JSONDropIndexMessage: ", e);
-    }
-  }
-
-  /**
-   * Method to de-serialize AlterIndexMessage instance.
-   */
-  @Override
-  public AlterIndexMessage getAlterIndexMessage(String messageBody) {
-    // Sentry does not need this message, but it needs to be implemented so that Hive can
-    // complete the notification log for such event.
-    try {
-      return mapper.readValue(messageBody, JSONAlterIndexMessage.class);
-    } catch (Exception e) {
-      throw new IllegalArgumentException("Could not construct JSONAlterIndexMessage: ", e);
-    }
-  }
-
-  /**
    * Method to de-serialize JSONInsertMessage instance.
    */
   @Override
@@ -218,6 +198,105 @@ public class SentryJSONMessageDeserializer extends MessageDeserializer {
     // complete the notification log for such event.
     try {
       return mapper.readValue(messageBody, JSONInsertMessage.class);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Could not construct InsertMessage", e);
+    }
+  }
+
+  @Override
+  public AddPrimaryKeyMessage getAddPrimaryKeyMessage(String messageBody) {
+    // Sentry does not need this message, but it needs to be implemented so that Hive can
+    // complete the notification log for such event.
+    try {
+      return mapper.readValue(messageBody, JSONAddPrimaryKeyMessage.class);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Could not construct InsertMessage", e);
+    }
+  }
+
+  @Override
+  public AddForeignKeyMessage getAddForeignKeyMessage(String messageBody) {
+    // Sentry does not need this message, but it needs to be implemented so that Hive can
+    // complete the notification log for such event.
+    try {
+      return mapper.readValue(messageBody, JSONAddForeignKeyMessage.class);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Could not construct InsertMessage", e);
+    }
+  }
+
+  @Override
+  public AddUniqueConstraintMessage getAddUniqueConstraintMessage(String messageBody) {
+    // Sentry does not need this message, but it needs to be implemented so that Hive can
+    // complete the notification log for such event.
+    try {
+      return mapper.readValue(messageBody, JSONAddUniqueConstraintMessage.class);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Could not construct InsertMessage", e);
+    }
+  }
+
+  @Override
+  public AddNotNullConstraintMessage getAddNotNullConstraintMessage(String messageBody) {
+    // Sentry does not need this message, but it needs to be implemented so that Hive can
+    // complete the notification log for such event.
+    try {
+      return mapper.readValue(messageBody, JSONAddNotNullConstraintMessage.class);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Could not construct InsertMessage", e);
+    }
+  }
+
+  @Override
+  public DropConstraintMessage getDropConstraintMessage(String messageBody) {
+    // Sentry does not need this message, but it needs to be implemented so that Hive can
+    // complete the notification log for such event.
+    try {
+      return mapper.readValue(messageBody, JSONDropConstraintMessage.class);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Could not construct InsertMessage", e);
+    }
+  }
+
+  @Override
+  public OpenTxnMessage getOpenTxnMessage(String messageBody) {
+    // Sentry does not need this message, but it needs to be implemented so that Hive can
+    // complete the notification log for such event.
+    try {
+      return mapper.readValue(messageBody, JSONOpenTxnMessage.class);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Could not construct InsertMessage", e);
+    }
+  }
+
+  @Override
+  public CommitTxnMessage getCommitTxnMessage(String messageBody) {
+    // Sentry does not need this message, but it needs to be implemented so that Hive can
+    // complete the notification log for such event.
+    try {
+      return mapper.readValue(messageBody, JSONCommitTxnMessage.class);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Could not construct InsertMessage", e);
+    }
+  }
+
+  @Override
+  public AbortTxnMessage getAbortTxnMessage(String messageBody) {
+    // Sentry does not need this message, but it needs to be implemented so that Hive can
+    // complete the notification log for such event.
+    try {
+      return mapper.readValue(messageBody, JSONAbortTxnMessage.class);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Could not construct InsertMessage", e);
+    }
+  }
+
+  @Override
+  public AllocWriteIdMessage getAllocWriteIdMessage(String messageBody) {
+    // Sentry does not need this message, but it needs to be implemented so that Hive can
+    // complete the notification log for such event.
+    try {
+      return mapper.readValue(messageBody, JSONAllocWriteIdMessage.class);
     } catch (Exception e) {
       throw new IllegalArgumentException("Could not construct InsertMessage", e);
     }

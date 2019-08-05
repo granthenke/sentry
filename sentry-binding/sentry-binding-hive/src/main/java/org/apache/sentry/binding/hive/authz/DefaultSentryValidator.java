@@ -14,8 +14,6 @@
  */
 package org.apache.sentry.binding.hive.authz;
 
-import static org.apache.hadoop.hive.metastore.MetaStoreUtils.DEFAULT_DATABASE_NAME;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import java.security.CodeSource;
@@ -51,12 +49,20 @@ import org.apache.sentry.core.model.db.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.hadoop.hive.metastore.Warehouse.DEFAULT_DATABASE_NAME;
+
 /**
  * This class used to do authorization. Check if current user has privileges to do the operation.
  */
 public class DefaultSentryValidator extends SentryHiveAuthorizationValidator {
   private final MetastoreAuthzObjectFilter.ObjectExtractor<HivePrivilegeObject> OBJECT_EXTRACTOR =
     new ObjectExtractor<HivePrivilegeObject>() {
+      // TODO: Get default catalog?
+      @Override
+      public String getCatalogName(HivePrivilegeObject o) {
+        return null;
+      }
+
       @Override
       public String getDatabaseName(HivePrivilegeObject o) {
         return (o != null) ? o.getDbname() : null;
@@ -117,7 +123,7 @@ public class DefaultSentryValidator extends SentryHiveAuthorizationValidator {
   // all operations need to extend at Table scope
   private static final Set<HiveOperation> EX_TB_ALL = Sets.newHashSet(HiveOperation.DROPTABLE,
       HiveOperation.DROPVIEW, HiveOperation.DESCTABLE, HiveOperation.SHOW_TBLPROPERTIES,
-      HiveOperation.SHOWINDEXES, HiveOperation.ALTERTABLE_PROPERTIES,
+      HiveOperation.ALTERTABLE_PROPERTIES,
       HiveOperation.ALTERTABLE_SERDEPROPERTIES, HiveOperation.ALTERTABLE_CLUSTER_SORT,
       HiveOperation.ALTERTABLE_FILEFORMAT, HiveOperation.ALTERTABLE_TOUCH,
       HiveOperation.ALTERTABLE_ADDCOLS, HiveOperation.ALTERTABLE_REPLACECOLS,
@@ -129,14 +135,13 @@ public class DefaultSentryValidator extends SentryHiveAuthorizationValidator {
       HiveOperation.ALTERVIEW_PROPERTIES, HiveOperation.ALTERPARTITION_FILEFORMAT,
       HiveOperation.ALTERPARTITION_SERIALIZER, HiveOperation.ALTERPARTITION_MERGEFILES,
       HiveOperation.ALTERPARTITION_LOCATION, HiveOperation.ALTERTBLPART_SKEWED_LOCATION,
-      HiveOperation.MSCK, HiveOperation.ALTERINDEX_REBUILD, HiveOperation.LOCKTABLE,
+      HiveOperation.MSCK, HiveOperation.LOCKTABLE,
       HiveOperation.UNLOCKTABLE, HiveOperation.SHOWCOLUMNS, HiveOperation.SHOW_TABLESTATUS,
       HiveOperation.LOAD, HiveOperation.TRUNCATETABLE);
   // input operations need to extend at Table scope
   private static final Set<HiveOperation> EX_TB_INPUT = Sets.newHashSet(HiveOperation.DROPTABLE,
-      HiveOperation.DROPVIEW, HiveOperation.SHOW_TBLPROPERTIES, HiveOperation.SHOWINDEXES,
-      HiveOperation.ALTERINDEX_REBUILD, HiveOperation.LOCKTABLE, HiveOperation.UNLOCKTABLE,
-      HiveOperation.SHOW_TABLESTATUS);
+      HiveOperation.DROPVIEW, HiveOperation.SHOW_TBLPROPERTIES, HiveOperation.LOCKTABLE,
+      HiveOperation.UNLOCKTABLE, HiveOperation.SHOW_TABLESTATUS);
   private static final Set<HiveOperation> META_TB_INPUT = Sets.newHashSet(HiveOperation.DESCTABLE,
       HiveOperation.SHOWCOLUMNS);
 
